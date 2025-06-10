@@ -29,6 +29,11 @@ public:
      * @return true if the program should continue running, false if it should exit.
      */
     bool input(void);
+
+    /**
+     * Manage the frame rate.
+     */
+    void frameManagement(void);
 private:
     /**
      * Pointer to the Controller instance.
@@ -43,4 +48,13 @@ private:
      * SDL event structure for handling events.
      */
     SDL_Event _event;
+
+    /**
+     * Last frame time in milliseconds.
+     */
+    Uint32 lastFrameTime;
+    /**
+     * Frame delay in milliseconds to control the frame rate.
+     */
+    Uint32 frameDelay;
 };

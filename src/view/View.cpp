@@ -3,7 +3,7 @@
 #include "View.hpp"
 #include "Const.hpp"
 
-View::View(Controller * p_controller): _controller(p_controller), _window(nullptr), _event() {
+View::View(Controller * p_controller): _controller(p_controller), _window(nullptr), _event(), lastFrameTime(0), frameDelay(1000 / FRAME_RATE) {
     // Initialize SDL
     if(SDL_Init(SDL_INIT_VIDEO) != 0){
         std::cerr << "SDL_Init Error: " << SDL_GetError() << std::endl;
@@ -42,4 +42,21 @@ bool View::input(void) {
         }
     }
     return isRunning;
+}
+
+void View::frameManagement(void) {
+    // Calculate the time taken to render this frame
+    Uint32 currentTime = SDL_GetTicks();
+    Uint32 renderTime = currentTime - lastFrameTime;
+
+    // Calculate required delay to maintain frame rate (rounded to nearest integer)
+    const Uint32 targetFrameDelay = (1000 + FRAME_RATE / 2) / FRAME_RATE; // 17 ms for 60 FPS
+
+    if (renderTime < targetFrameDelay) {
+        Uint32 waitTime = targetFrameDelay - renderTime;
+        SDL_Delay(waitTime);
+    }
+
+    // Update frame timing reference point
+    lastFrameTime = SDL_GetTicks();
 }

@@ -1,4 +1,4 @@
 #define WINDOW_TITLE "wave"
 #define WINDOW_WIDTH 800
 #define WINDOW_HEIGHT 600
-#define WINDOW_FPS 60
+#define FRAME_RATE 60
