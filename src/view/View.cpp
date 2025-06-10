@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "View.hpp"
+#include "Const.hpp"
 
 View::View(Controller * p_controller): _controller(p_controller), _window(nullptr), _event() {
     // Initialize SDL
@@ -10,7 +11,7 @@ View::View(Controller * p_controller): _controller(p_controller), _window(nullpt
     }
 
     // Create a window
-    _window = SDL_CreateWindow("wave", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, SDL_WINDOW_SHOWN);
+    _window = SDL_CreateWindow(WINDOW_TITLE, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_WIDTH, SDL_WINDOW_SHOWN);
 
     if(!_window){
         std::cerr << "SDL_CreateWindow Error: " << SDL_GetError() << std::endl;

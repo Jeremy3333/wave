@@ -16,6 +16,7 @@ target_include_directories(wave PRIVATE
     src/controller/
     src/model/
     src/view/
+    src/utils
 )
 
 target_link_libraries(wave
