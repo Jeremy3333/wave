@@ -3,7 +3,7 @@
 #include "View.hpp"
 #include "Const.hpp"
 
-View::View(Controller * p_controller): _controller(p_controller), _window(nullptr), _event(), lastFrameTime(0), frameDelay(1000 / FRAME_RATE) {
+View::View(Controller * p_controller): _controller(p_controller), _window(nullptr), _renderer(nullptr), _event(), lastFrameTime(0), frameDelay(1000 / FRAME_RATE) {
     // Initialize SDL
     if(SDL_Init(SDL_INIT_VIDEO) != 0){
         std::cerr << "SDL_Init Error: " << SDL_GetError() << std::endl;
@@ -18,9 +18,19 @@ View::View(Controller * p_controller): _controller(p_controller), _window(nullpt
         SDL_Quit();
         throw std::runtime_error("Window creation failed");
     }
+
+    // Create a renderer
+    _renderer = SDL_CreateRenderer(_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+    if(!_renderer){
+        std::cerr << "SDL_CreateRenderer Error: " << SDL_GetError() << std::endl;
+        SDL_DestroyWindow(_window);
+        SDL_Quit();
+        throw std::runtime_error("Renderer creation failed");
+    }
 }
 
 View::~View() {
+    SDL_DestroyRenderer(_renderer);
     SDL_DestroyWindow(_window);
     SDL_Quit();
 }
@@ -44,6 +54,11 @@ bool View::input(void) {
     return isRunning;
 }
 
+void View::draw(void) {
+    _drawBackground();
+    SDL_RenderPresent(_renderer);
+}
+
 void View::frameManagement(void) {
     // Calculate the time taken to render this frame
     Uint32 currentTime = SDL_GetTicks();
@@ -59,4 +74,10 @@ void View::frameManagement(void) {
 
     // Update frame timing reference point
     lastFrameTime = SDL_GetTicks();
+}
+
+void View::_drawBackground(void){
+    // Clear the renderer with a black color
+    SDL_SetRenderDrawColor(_renderer, 166, 243, 249, 255);
+    SDL_RenderClear(_renderer);
 }

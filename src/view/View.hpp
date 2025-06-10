@@ -31,6 +31,12 @@ public:
     bool input(void);
 
     /**
+     * Render the view.
+     * This function should be implemented to draw the current state of the game.
+     */
+    void draw(void);
+
+    /**
      * Manage the frame rate.
      */
     void frameManagement(void);
@@ -45,6 +51,10 @@ private:
      */
     SDL_Window * _window;
     /**
+     * Pointer to the SDL renderer.
+     */
+    SDL_Renderer * _renderer;
+    /**
      * SDL event structure for handling events.
      */
     SDL_Event _event;
@@ -57,4 +67,6 @@ private:
      * Frame delay in milliseconds to control the frame rate.
      */
     Uint32 frameDelay;
+
+    void _drawBackground(void);
 };

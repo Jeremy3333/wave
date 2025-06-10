@@ -9,6 +9,7 @@ void Controller::_loop() {
     while (_isRunning)
     {
         _isRunning = _view.input();
+        _view.draw();
         _view.frameManagement();
     }
 }
