@@ -62,7 +62,7 @@ bool View::input(void) {
 
 void View::draw(void) {
     _drawBackground();
-    _drawThickLine(10, 10, 200, 200, 5, (SDL_Color){0, 0, 0, 255});
+    _drawThickRoundLine(10, 10, 200, 200, 5, (SDL_Color){0, 0, 0, 255});
     SDL_RenderPresent(_renderer);
 }
 
@@ -101,11 +101,11 @@ void View::_drawThickLine(float x1, float y1, float x2, float y2, float thicknes
     // Normalize direction
     dx /= length;
     dy /= length;
-    
+
     // Calculate perpendicular vector (scaled by half-thickness)
     float px = -dy * thickness / 2;
     float py = dx * thickness / 2;
-    
+
     // Calculate four corners of the thiccolork line
     SDL_FPoint points[4] = {
         { x1 + px, y1 + py }, // P1: top-left
@@ -113,7 +113,7 @@ void View::_drawThickLine(float x1, float y1, float x2, float y2, float thicknes
         { x2 - px, y2 - py }, // P3: bottom-right
         { x2 + px, y2 + py }  // P4: top-right
     };
-    
+
     // Vertices for the quad (position + color)
     SDL_Vertex vertices[4];
     for (int i = 0; i < 4; ++i) {
@@ -123,10 +123,58 @@ void View::_drawThickLine(float x1, float y1, float x2, float y2, float thicknes
             .tex_coord = { 0, 0 }
         };
     }
-    
+
     // Indices for two triangles (P1->P2->P3 and P1->P3->P4)
     const int indices[6] = { 0, 1, 2, 0, 2, 3 };
-    
+
     // Render the thick line as a quad
     SDL_RenderGeometry(_renderer, NULL, vertices, 4, indices, 6);
+}
+
+void View::_fillCircle(float x, float y, float r) {
+    int offsetx, offsety, d;
+    int status;
+
+    offsetx = 0;
+    offsety = r;
+    d = r -1;
+    status = 0;
+
+    while (offsety >= offsetx) {
+
+        status += SDL_RenderDrawLine(_renderer, x - offsety, y + offsetx,
+                                     x + offsety, y + offsetx);
+        status += SDL_RenderDrawLine(_renderer, x - offsetx, y + offsety,
+                                     x + offsetx, y + offsety);
+        status += SDL_RenderDrawLine(_renderer, x - offsetx, y - offsety,
+                                     x + offsetx, y - offsety);
+        status += SDL_RenderDrawLine(_renderer, x - offsety, y - offsetx,
+                                     x + offsety, y - offsetx);
+
+        if (status < 0) {
+            status = -1;
+            break;
+        }
+
+        if (d >= 2*offsetx) {
+            d -= 2*offsetx + 1;
+            offsetx +=1;
+        }
+        else if (d < 2 * (r - offsety)) {
+            d += 2 * offsety - 1;
+            offsety -= 1;
+        }
+        else {
+            d += 2 * (offsety - offsetx - 1);
+            offsety -= 1;
+            offsetx += 1;
+        }
+    }
+}
+
+void View::_drawThickRoundLine(float x1, float y1, float x2, float y2, float thickness, SDL_Color color) {
+    SDL_SetRenderDrawColor(_renderer, color.r, color.g, color.b, color.a);
+    _drawThickLine(x1, y1, x2, y2, thickness, color);
+    _fillCircle(x1, y1, thickness / 2.0f);
+    _fillCircle(x2, y2, thickness / 2.0f);
 }

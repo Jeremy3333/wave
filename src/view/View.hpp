@@ -75,6 +75,31 @@ private:
 
     /**
      * Draw a thick line between two points.
+     * @param x1 The x-coordinate of the first point.
+     * @param y1 The y-coordinate of the first point.
+     * @param x2 The x-coordinate of the second point.
+     * @param y2 The y-coordinate of the second point.
+     * @param thickness The thickness of the line.
+     * @param color The color of the line. (mandatory because of SDL_RenderGeometry)
      */
     void _drawThickLine(float x1, float y1, float x2, float y2, float thickness, SDL_Color color);
+
+    /**
+     * Fill a circle.
+     * @param x The x-coordinate of the center of the circle.
+     * @param y The y-coordinate of the center of the circle.
+     * @param r The radius of the circle.
+     */
+    void _fillCircle(float x, float y, float r);
+
+    /**
+     * Draw a thick round line between two points.
+     * @param x1 The x-coordinate of the first point.
+     * @param y1 The y-coordinate of the first point.
+     * @param x2 The x-coordinate of the second point.
+     * @param y2 The y-coordinate of the second point.
+     * @param thickness The thickness of the line.
+     * @param color The color of the line. (mandatory because of SDL_RenderGeometry)
+     */
+    void _drawThickRoundLine(float x1, float y1, float x2, float y2, float thickness, SDL_Color color);
 };
