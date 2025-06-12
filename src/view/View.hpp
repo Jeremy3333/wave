@@ -68,5 +68,13 @@ private:
      */
     Uint32 frameDelay;
 
+    /**
+     * Draw the background.
+     */
     void _drawBackground(void);
+
+    /**
+     * Draw a thick line between two points.
+     */
+    void _drawThickLine(float x1, float y1, float x2, float y2, float thickness, SDL_Color color);
 };
