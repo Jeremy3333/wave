@@ -6,7 +6,7 @@
 Model::Model():_isoAlpha(M_PI / 4), _rotation(0) {}
 
 void Model::addIsoAlpha(float p_v) {
-    _isoAlpha = std::clamp(_isoAlpha + p_v, 0.0f, static_cast<float>(M_PI / 2));
+    _isoAlpha = std::clamp(_isoAlpha + p_v, 0.05f, static_cast<float>(M_PI / 2));
 }
 
 void Model::addRotation(float p_v) {
