@@ -1,10 +1,7 @@
 #pragma once
 #include <SDL2/SDL.h>
 
-/**
- * pre-declaration of Controller class to avoid circular dependency.
- */
-class Controller;
+#include "Model.hpp"
 
 /**
  * View class for handling user input and rendering.
@@ -13,11 +10,11 @@ class View {
 public:
     /**
      * Constructor for the View class.
-     * @param p_controller Pointer to the Controller instance.
+     * @param p_model Pointer to the Model instance.
      * Initializes SDL and creates a window.
      * @throws std::runtime_error if SDL initialization or window creation fails.
      */
-    View(Controller * p_controller);
+    View(Model & p_model);
     /**
      * Destructor for the View class.
      * Cleans up SDL resources.
@@ -44,8 +41,8 @@ private:
     /**
      * Pointer to the Controller instance.
      */
-    Controller * _controller;
-    
+    Model & _Model;
+
     /**
      * Pointer to the SDL window.
      */
@@ -67,6 +64,11 @@ private:
      * Frame delay in milliseconds to control the frame rate.
      */
     Uint32 frameDelay;
+
+    /**
+     * time of the last frame in milliseconds.
+     */
+    float deltaTime;
 
     /**
      * Draw the background.
@@ -102,4 +104,32 @@ private:
      * @param color The color of the line. (mandatory because of SDL_RenderGeometry)
      */
     void _drawThickRoundLine(float x1, float y1, float x2, float y2, float thickness, SDL_Color color);
+
+    /**
+     * Draw a 3D hexagon at the specified coordinates.
+     * @param x The x-coordinate of the center of the hexagon.
+     * @param y The y-coordinate of the center of the hexagon.
+     */
+    void _draw3DHexagon(float x, float y);
+
+    /**
+     * @brief true if the face y1, y2 of the object place at y is visible
+     *
+     * @param y1 height of the first side of the face
+     * @param y2 height of the second side of the face
+     * @param y height if the centre of the object
+     * @return true the face is visible
+     * @return false the face is hide
+     */
+    bool _isFaceIsometricallyVisible(float y1, float y2, float y);
+
+    /**
+     * @brief Compare the first element of two pairs.
+     *
+     * @param first The first pair to compare.
+     * @param second The second pair to compare.
+     * @return true if the first element of the first pair is less than the first element of the second pair.
+     * @return false otherwise.
+     */
+    static bool _compareFirstOfPair(std::pair<float, float>& first, std::pair<float, float>& second);
 };

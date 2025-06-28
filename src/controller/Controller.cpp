@@ -1,6 +1,6 @@
 #include "Controller.hpp"
 
-Controller::Controller() : _model(), _view(this), _isRunning(true) {
+Controller::Controller() : _model(), _view(_model), _isRunning(true) {
     _loop();
 }
 

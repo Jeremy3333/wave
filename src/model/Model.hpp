@@ -1,11 +1,6 @@
 #pragma once
 
 /**
- * pre-declaration of Controller class to avoid circular dependency.
- */
-class Controller;
-
-/**
  * Model class for managing application data and logic.
  */
 class Model {
@@ -13,6 +8,36 @@ public:
     /**
      * Constructor for Model class.
      */
-    Model();
+    Model(void);
+
+    /**
+     * @brief Set the isometrical angle of the model.
+     *
+     * @param p_v The value to add to the isometric alpha.
+     */
+    void addIsoAlpha(float p_v);
+
+    /**
+     * @brief Add a rotation to the model.
+     *
+     * @param p_v The value to add to the rotation.
+     */
+    void addRotation(float p_v);
+
+    /**
+     * @brief Get the isometric alpha of the model.
+     *
+     * @return The current isometric alpha.
+     */
+    float getIsoAlpha(void) const;
+
+    /**
+     * @brief Get the rotation of the model.
+     *
+     * @return The current rotation.
+     */
+    float getRotation(void) const;
 private:
+    float _isoAlpha;
+    float _rotation;
 };

@@ -1,10 +1,11 @@
 #include <iostream>
+#include <list>
 
 #include "View.hpp"
 #include "Const.hpp"
 
-View::View(Controller * p_controller):
-    _controller(p_controller),
+View::View(Model & p_model):
+    _Model(p_model),
     _window(nullptr),
     _renderer(nullptr),
     _event(),
@@ -42,8 +43,8 @@ View::~View() {
 }
 
 bool View::input(void) {
-    bool isRunning = true;
-    while (SDL_PollEvent(&_event))
+bool isRunning = true;
+while (SDL_PollEvent(&_event))
     {
         switch (_event.type)
         {
@@ -51,8 +52,23 @@ bool View::input(void) {
                 isRunning = false;
                 break;
             case SDL_KEYDOWN:
-                if (_event.key.keysym.sym == SDLK_ESCAPE) {
-                    isRunning = false;
+                switch (_event.key.keysym.sym)
+                {
+                    case SDLK_ESCAPE:
+                        isRunning = false;
+                        break;
+                    case SDLK_q:
+                        _Model.addRotation((deltaTime / 1000) * M_PI/2);
+                        break;
+                    case SDLK_d:
+                        _Model.addRotation(-(deltaTime / 1000) * M_PI/2);
+                        break;
+                    case SDLK_z:
+                        _Model.addIsoAlpha((deltaTime / 1000) * M_PI/5);
+                        break;
+                    case SDLK_s:
+                        _Model.addIsoAlpha(-(deltaTime / 1000) * M_PI/5);
+                        break;
                 }
                 break;
         }
@@ -62,7 +78,9 @@ bool View::input(void) {
 
 void View::draw(void) {
     _drawBackground();
-    _drawThickRoundLine(10, 10, 200, 200, 5, (SDL_Color){0, 0, 0, 255});
+    _draw3DHexagon(WINDOW_WIDTH/2, WINDOW_HEIGHT/2);
+    SDL_SetRenderDrawColor(_renderer, 255, 0, 0, 255);
+    _fillCircle(WINDOW_WIDTH/2, WINDOW_HEIGHT/2, 2);
     SDL_RenderPresent(_renderer);
 }
 
@@ -79,13 +97,16 @@ void View::frameManagement(void) {
         SDL_Delay(waitTime);
     }
 
+    // Update deltaTime for the next frame
+    deltaTime = SDL_GetTicks() - lastFrameTime;
+
     // Update frame timing reference point
     lastFrameTime = SDL_GetTicks();
 }
 
 void View::_drawBackground(void){
-    // Clear the renderer with a black color
-    SDL_SetRenderDrawColor(_renderer, 166, 243, 249, 255);
+    // Clear the renderer
+    SDL_SetRenderDrawColor(_renderer, 15, 131, 247, 255);
     SDL_RenderClear(_renderer);
 }
 
@@ -175,6 +196,51 @@ void View::_fillCircle(float x, float y, float r) {
 void View::_drawThickRoundLine(float x1, float y1, float x2, float y2, float thickness, SDL_Color color) {
     SDL_SetRenderDrawColor(_renderer, color.r, color.g, color.b, color.a);
     _drawThickLine(x1, y1, x2, y2, thickness, color);
-    _fillCircle(x1, y1, thickness / 2.0f);
-    _fillCircle(x2, y2, thickness / 2.0f);
+    _fillCircle(x1, y1 - 1, thickness / 2.0f);
+    _fillCircle(x2, y2 - 1, thickness / 2.0f);
+}
+
+void View::_draw3DHexagon(float x, float y){
+    const float alpha = _Model.getIsoAlpha();
+    const float rotation = _Model.getRotation();
+    constexpr int r = 30;
+    const double h = r * 1.5 * (1 - alpha / M_PI_2);
+    float x1 = r * std::cos(rotation) + x;
+    float y1 = r * std::sin(rotation) * std::sin(alpha) + y;
+    std::list<std::pair<float, float>> visible;
+    SDL_SetRenderDrawColor(_renderer, 0, 0, 0, 255);
+    for (int i = 1; i <= 6; i++){
+        float x2 = r * std::cos((i * M_PI / 3) + rotation) + x;
+        float y2 = r * std::sin((i * M_PI / 3) + rotation) * std::sin(alpha) + y;
+        if(_isFaceIsometricallyVisible(y1, y2, y)){
+            _drawThickLine(x1, y1, x2, y2, 2,{255, 255, 255, 255});
+            visible.push_front({x1, y1});
+            visible.push_front({x2, y2});
+            _drawThickLine(x1, y1 + h, x2, y2 + h, 2,{0, 0, 0, 255});
+        }
+        else
+            _drawThickLine(x1, y1, x2, y2, 2,{0, 0, 0, 255});
+        x1 = x2;
+        y1 = y2;
+    }
+    visible.unique();
+    visible.sort(View::_compareFirstOfPair);
+    std::pair<float, float> borderLine = visible.front();
+    visible.pop_front();
+    _drawThickLine(borderLine.first, borderLine.second, borderLine.first, borderLine.second + h, 2,{0, 0, 0, 255});
+    borderLine = visible.back();
+    visible.pop_back();
+    _drawThickLine(borderLine.first, borderLine.second, borderLine.first, borderLine.second + h, 2,{0, 0, 0, 255});
+    for(auto e: visible){
+        _drawThickLine(e.first, e.second, e.first, e.second + h, 2,{255, 255, 255, 255});
+    }
+}
+
+bool View::_isFaceIsometricallyVisible(float y1, float y2, float y) {
+    float faceY = (y1 + y2) / 2;
+    return faceY >= y;
+}
+
+bool View::_compareFirstOfPair(std::pair<float, float>& first, std::pair<float, float>& second) {
+    return first.first < second.first;
 }
