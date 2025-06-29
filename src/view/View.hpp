@@ -105,12 +105,15 @@ private:
      */
     void _drawThickRoundLine(float x1, float y1, float x2, float y2, float thickness, SDL_Color color);
 
+    void _draw3DHexagon(const float x, const float y, const float alpha, const float sinAlpha, const float rotation, const int radius);
+
     /**
-     * Draw a 3D hexagon at the specified coordinates.
-     * @param x The x-coordinate of the center of the hexagon.
-     * @param y The y-coordinate of the center of the hexagon.
+     * @brief Draw a grid at the specified coordinates.
+     *
+     * @param x The x-coordinate of the center of the grid.
+     * @param y The y-coordinate of the center of the grid.
      */
-    void _draw3DHexagon(float x, float y);
+    void _drawGrid(const float x, const float y);
 
     /**
      * @brief true if the face y1, y2 of the object place at y is visible
@@ -124,12 +127,12 @@ private:
     bool _isFaceIsometricallyVisible(float y1, float y2, float y);
 
     /**
-     * @brief Compare the first element of two pairs.
+     * @brief Compare the second element of two pairs.
      *
      * @param first The first pair to compare.
      * @param second The second pair to compare.
-     * @return true if the first element of the first pair is less than the first element of the second pair.
+     * @return true if the second element of the first pair is less than the second element of the second pair.
      * @return false otherwise.
      */
-    static bool _compareFirstOfPair(std::pair<float, float>& first, std::pair<float, float>& second);
+    static bool _compareSecondOfPair(std::pair<int, int>& first, std::pair<int, int>& second);
 };

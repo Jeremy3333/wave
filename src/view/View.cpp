@@ -71,6 +71,12 @@ while (SDL_PollEvent(&_event))
                     case SDLK_s:
                         _Model.addIsoAlpha(-(deltaTime / 1000) * M_PI/5);
                         break;
+                    case SDLK_r:
+                        _Model.addGridSize(1);
+                        break;
+                    case SDLK_f:
+                        _Model.addGridSize(-1);
+                        break;
                 }
                 break;
         }
@@ -80,7 +86,7 @@ while (SDL_PollEvent(&_event))
 
 void View::draw(void) {
     _drawBackground();
-    _draw3DHexagon(WINDOW_WIDTH/2, WINDOW_HEIGHT/2);
+    _drawGrid(WINDOW_WIDTH/2, WINDOW_HEIGHT/2);
     SDL_RenderPresent(_renderer);
 }
 
@@ -200,12 +206,8 @@ void View::_drawThickRoundLine(float x1, float y1, float x2, float y2, float thi
     _fillCircle(x2, y2 - 1, thickness / 2.0f);
 }
 
-void View::_draw3DHexagon(float x, float y) {
+void View::_draw3DHexagon(const float x, const float y, const float alpha, const float sinAlpha, const float rotation, const int radius) {
     // 1. Préparation des paramètres de base
-    const float alpha = _Model.getIsoAlpha();
-    const float rotation = _Model.getRotation();
-    constexpr int radius = 30;
-    const float sinAlpha = std::sin(alpha);
     const float cosAlpha = std::cos(alpha);
     const float height = radius * 1.5f * cosAlpha;
 
@@ -316,11 +318,56 @@ void View::_draw3DHexagon(float x, float y) {
     }
 }
 
+void View::_drawGrid(const float x, const float y) {
+    // 1. prépare les variable
+    const float alpha = _Model.getIsoAlpha();
+    const float rotation = _Model.getRotation();
+    const int gridSize = _Model.getGridSize();
+    constexpr int hexRadius = 30;
+    std::vector<std::pair<int, int>> hexagones;
+
+    // 2. précalculation
+    const float sinAlpha = std::sin(alpha);
+    const int gridRadius =std::sqrt(3) * hexRadius;
+
+    // 3. Rajoute l'hexagone central
+    hexagones.push_back({x, y});
+
+    // 4. calcule le reste de la grille
+    for(int i = 0; i < gridSize; i++) {
+        // séparee en 6 ligne
+        std::pair<int, int> lastCoor = {(gridRadius * (i + 1)) * std::cos(5 * M_PI / 3 + rotation + M_PI / 6) + x, (gridRadius * (i + 1)) * std::sin(5 * M_PI / 3 + rotation + M_PI / 6) * sinAlpha + y};
+        for(int j = 0; j < 6; j++) {
+            const float angle = j * M_PI / 3 + rotation + M_PI / 6;
+            std::pair<int, int> currCoor = {(gridRadius * (i + 1)) * std::cos(angle) + x, (gridRadius * (i + 1)) * std::sin(angle) * sinAlpha + y};
+            hexagones.push_back(currCoor);
+            // longeur entre les deux points
+            float distance = std::sqrt(std::pow(currCoor.first - lastCoor.first, 2) + std::pow(currCoor.second - lastCoor.second, 2));
+            // la normale du vecteur
+            float normalX = (currCoor.first - lastCoor.first) / distance;
+            float normalY = (currCoor.second - lastCoor.second) / distance;
+            // ajoute i hexagone entre les deux points
+            for(int k = 1; k < i + 1; k++) {
+                std::pair<int, int> newCoor = {static_cast<int>(lastCoor.first + k * normalX * distance / (i + 1)),
+                                               static_cast<int>(lastCoor.second + k * normalY * distance / (i + 1))};
+                hexagones.push_back(newCoor);
+            }
+            lastCoor = currCoor;
+        }
+    }
+
+    std::sort(hexagones.begin(), hexagones.end(), _compareSecondOfPair);
+
+    for(auto hexagone : hexagones){
+        _draw3DHexagon(hexagone.first, hexagone.second, alpha, sinAlpha, rotation, hexRadius);
+    }
+}
+
 bool View::_isFaceIsometricallyVisible(float y1, float y2, float y) {
     float faceY = (y1 + y2) / 2;
     return faceY >= y;
 }
 
-bool View::_compareFirstOfPair(std::pair<float, float>& first, std::pair<float, float>& second) {
-    return first.first < second.first;
+bool View::_compareSecondOfPair(std::pair<int, int>& first, std::pair<int, int>& second) {
+    return first.second < second.second;
 }

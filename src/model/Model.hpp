@@ -25,6 +25,13 @@ public:
     void addRotation(float p_v);
 
     /**
+     * @brief Add a grid size to the model.
+     *
+     * @param p_v The value to add to the grid size.
+     */
+    void addGridSize(int p_v);
+
+    /**
      * @brief Get the isometric alpha of the model.
      *
      * @return The current isometric alpha.
@@ -37,7 +44,15 @@ public:
      * @return The current rotation.
      */
     float getRotation(void) const;
+
+    /**
+     * @brief Get the Grid Size object
+     *
+     * @return int The current grid size
+     */
+    int getGridSize(void) const;
 private:
     float _isoAlpha;
     float _rotation;
+    int _gridSize;
 };
