@@ -33,5 +33,5 @@ private:
      * Main loop of the application.
      * Handles user input and updates the model and view.
      */
-    void _loop();
+    void _mainLoop();
 };
