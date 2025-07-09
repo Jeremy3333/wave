@@ -1,31 +1,39 @@
 #include <cmath>
 #include <algorithm>
+#include <stdexcept>
 
 #include "Model.hpp"
+#include "ModelConstants.hpp"
 
-Model::Model():_isoAlpha(M_PI / 4), _rotation(0), _gridSize(0) {}
+Model::Model():_isoAlphaAngle(M_PI / 4), _rotationAngle(0), _gridSize(0) {}
 
-void Model::addIsoAlpha(float p_v) {
-    _isoAlpha = std::clamp(_isoAlpha + p_v, 0.05f, static_cast<float>(M_PI / 2));
+void Model::addIsoAlpha(float updateIsoAlpha) {
+    if(updateIsoAlpha < -ModelConstants::kMaxIsoAlphaAngle || updateIsoAlpha > ModelConstants::kMaxIsoAlphaAngle)
+        throw std::invalid_argument("updateIsoAlpha must be between -pi/2 and pi/2");
+    _isoAlphaAngle = std::clamp(_isoAlphaAngle + updateIsoAlpha, ModelConstants::kMinIsoAlphaAngle, ModelConstants::kMaxIsoAlphaAngle);
 }
 
-void Model::addRotation(float p_v) {
-    _rotation = std::fmod(_rotation + p_v, static_cast<float>(2 * M_PI));
-    if (_rotation < 0.0f) {
-        _rotation += static_cast<float>(2 * M_PI);
+void Model::addRotation(float updateRotationAngle) {
+    if(updateRotationAngle < -ModelConstants::kMaxRotationAngle || updateRotationAngle > ModelConstants::kMaxRotationAngle)
+        throw std::invalid_argument("updateRotationAngle must be between -2pi and 2pi");
+    _rotationAngle = std::fmod(_rotationAngle + updateRotationAngle, ModelConstants::kMaxRotationAngle);
+    if (_rotationAngle < ModelConstants::kMinRotationAngle) {
+        _rotationAngle += ModelConstants::kMaxRotationAngle;
     }
 }
 
-void Model::addGridSize(int p_v) {
-    _gridSize = std::clamp(_gridSize + p_v, 0, 5);
+void Model::addGridSize(int updateGridSize) {
+    if(updateGridSize < -ModelConstants::kMaxGridSize || updateGridSize > ModelConstants::kMaxGridSize)
+        throw std::invalid_argument("updateGridSize must be between -5 and 5");
+    _gridSize = std::clamp(_gridSize + updateGridSize, ModelConstants::kMinGridSize, ModelConstants::kMaxGridSize);
 }
 
 float Model::getIsoAlpha(void) const {
-    return _isoAlpha;
+    return _isoAlphaAngle;
 }
 
 float Model::getRotation(void) const {
-    return _rotation;
+    return _rotationAngle;
 }
 
 int Model::getGridSize(void) const {

@@ -13,23 +13,23 @@ public:
     /**
      * @brief Set the isometrical angle of the model.
      *
-     * @param p_v The value to add to the isometric alpha.
+     * @param updateIsoAlpha The value to add to the isometric alpha. (between -pi/2 and pi/2)
      */
-    void addIsoAlpha(float p_v);
+    void addIsoAlpha(float updateIsoAlpha);
 
     /**
      * @brief Add a rotation to the model.
      *
-     * @param p_v The value to add to the rotation.
+     * @param updateRotationAngle The value to add to the rotation. (between -2pi and 2pi)
      */
-    void addRotation(float p_v);
+    void addRotation(float updateRotationAngle);
 
     /**
      * @brief Add a grid size to the model.
      *
-     * @param p_v The value to add to the grid size.
+     * @param updateGridSize The value to add to the grid size. (beetween -5 and 5)
      */
-    void addGridSize(int p_v);
+    void addGridSize(int updateGridSize);
 
     /**
      * @brief Get the isometric alpha of the model.
@@ -52,7 +52,7 @@ public:
      */
     int getGridSize(void) const;
 private:
-    float _isoAlpha;
-    float _rotation;
+    float _isoAlphaAngle;
+    float _rotationAngle;
     int _gridSize;
 };
