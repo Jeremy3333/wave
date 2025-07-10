@@ -4,7 +4,7 @@
 #include <algorithm>
 
 #include "View.hpp"
-#include "Const.hpp"
+#include "ViewConstants.hpp"
 
 View::View(Model & p_model):
     _Model(p_model),
@@ -12,7 +12,7 @@ View::View(Model & p_model):
     _renderer(nullptr),
     _event(),
     lastFrameTime(0),
-    frameDelay(1000 / FRAME_RATE) {
+    frameDelay(1000 / ViewConstants::FRAME_RATE) {
     // Initialize SDL
     if(SDL_Init(SDL_INIT_VIDEO) != 0){
         std::cerr << "SDL_Init Error: " << SDL_GetError() << std::endl;
@@ -20,7 +20,7 @@ View::View(Model & p_model):
     }
 
     // Create a window
-    _window = SDL_CreateWindow(WINDOW_TITLE, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
+    _window = SDL_CreateWindow(ViewConstants::WINDOW_TITLE, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, ViewConstants::WINDOW_WIDTH, ViewConstants::WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
 
     if(!_window){
         std::cerr << "SDL_CreateWindow Error: " << SDL_GetError() << std::endl;
@@ -45,48 +45,25 @@ View::~View() {
 }
 
 bool View::input(void) {
-bool isRunning = true;
-while (SDL_PollEvent(&_event))
-    {
+    bool shouldContinueRunning = true;
+    while (SDL_PollEvent(&_event)) {
         switch (_event.type)
         {
             case SDL_QUIT:
-                isRunning = false;
+                shouldContinueRunning = false;
                 break;
             case SDL_KEYDOWN:
-                switch (_event.key.keysym.sym)
-                {
-                    case SDLK_ESCAPE:
-                        isRunning = false;
-                        break;
-                    case SDLK_q:
-                        _Model.addRotation((deltaTime / 1000) * M_PI/2);
-                        break;
-                    case SDLK_d:
-                        _Model.addRotation(-(deltaTime / 1000) * M_PI/2);
-                        break;
-                    case SDLK_z:
-                        _Model.addIsoAlpha((deltaTime / 1000) * M_PI/5);
-                        break;
-                    case SDLK_s:
-                        _Model.addIsoAlpha(-(deltaTime / 1000) * M_PI/5);
-                        break;
-                    case SDLK_r:
-                        _Model.addGridSize(1);
-                        break;
-                    case SDLK_f:
-                        _Model.addGridSize(-1);
-                        break;
-                }
+                shouldContinueRunning = _handleKeyPress(_event.key.keysym.sym, _deltaTime);
+            default:
                 break;
         }
     }
-    return isRunning;
+    return shouldContinueRunning;
 }
 
 void View::draw(void) {
     _drawBackground();
-    _drawGrid(WINDOW_WIDTH/2, WINDOW_HEIGHT/2);
+    _drawGrid(ViewConstants::WINDOW_WIDTH / 2, ViewConstants::WINDOW_HEIGHT / 2);
     SDL_RenderPresent(_renderer);
 }
 
@@ -96,7 +73,7 @@ void View::frameManagement(void) {
     Uint32 renderTime = currentTime - lastFrameTime;
 
     // Calculate required delay to maintain frame rate (rounded to nearest integer)
-    const Uint32 targetFrameDelay = (1000 + FRAME_RATE / 2) / FRAME_RATE; // 17 ms for 60 FPS
+    const Uint32 targetFrameDelay = (1000 + ViewConstants::FRAME_RATE / 2) / ViewConstants::FRAME_RATE; // 17 ms for 60 FPS
 
     if (renderTime < targetFrameDelay) {
         Uint32 waitTime = targetFrameDelay - renderTime;
@@ -104,10 +81,41 @@ void View::frameManagement(void) {
     }
 
     // Update deltaTime for the next frame
-    deltaTime = SDL_GetTicks() - lastFrameTime;
+    _deltaTime = SDL_GetTicks() - lastFrameTime;
 
     // Update frame timing reference point
     lastFrameTime = SDL_GetTicks();
+}
+
+
+
+bool View::_handleKeyPress(SDL_Keycode keyCode, float deltaTime) {
+    switch (keyCode) {
+        case SDLK_ESCAPE:
+            return false;
+            break;
+        case SDLK_q:
+            _Model.addRotation((deltaTime / 1000.0f) * M_PI / 2.0f);
+            break;
+        case SDLK_d:
+            _Model.addRotation(-(deltaTime / 1000.0f) * M_PI / 2.0f);
+            break;
+        case SDLK_z:
+            _Model.addIsoAlpha((deltaTime / 1000.0f) * M_PI / 5.0f);
+            break;
+        case SDLK_s:
+            _Model.addIsoAlpha(-(deltaTime / 1000.0f) * M_PI / 5.0f);
+            break;
+        case SDLK_r:
+            _Model.addGridSize(1);
+            break;
+        case SDLK_f:
+            _Model.addGridSize(-1);
+            break;
+        default:
+            break;
+    }
+    return true;
 }
 
 void View::_drawBackground(void){

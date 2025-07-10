@@ -22,8 +22,10 @@ public:
     ~View();
 
     /**
-     * Handle user input.
-     * @return true if the program should continue running, false if it should exit.
+     * @brief Handle user input.
+     *
+     * @return true if the program should continue running.
+     * @return false if the program should exit.
      */
     bool input(void);
 
@@ -68,7 +70,17 @@ private:
     /**
      * time of the last frame in milliseconds.
      */
-    float deltaTime;
+    float _deltaTime;
+
+    /**
+     * @brief Handle key press events.
+     *
+     * @param keyCode The SDL keycode of the pressed key.
+     * @param deltaTime The time since the last frame in milliseconds.
+     * @return true if the program should continue running, false if it should exit.
+     * @return false if the program should exit.
+     */
+    bool _handleKeyPress(SDL_Keycode keyCode, float deltaTime);
 
     /**
      * Draw the background.
